@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="/">
+    <file alias="icon">icons/icon.svg</file>
+    <file>qtquickcontrols2.conf</file>
+  </qresource>
+</RCC>

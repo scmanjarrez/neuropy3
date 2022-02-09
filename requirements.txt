@@ -1,0 +1,3 @@
+git+https://github.com/pybluez/pybluez
+PySide6==6.2.3
+shiboken6==6.2.3
