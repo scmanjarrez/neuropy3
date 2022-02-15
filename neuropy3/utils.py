@@ -22,6 +22,11 @@
 # You should have received a copy of the GNU General Public License
 # along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
+from scipy.fft import irfft, rfft, rfftfreq
+
+import numpy as np
+
+
 _RED = '\033[91m'
 _YELLOW = '\033[93m'
 _BLUE = '\033[94m'
@@ -50,10 +55,18 @@ CODE = {v: k for k, v in BYTE.items()}
 NAMES = ['battery', 'signal', 'attention', 'meditation', 'blink',
          'raw', 'delta', 'theta', 'alpha_l', 'alpha_h',
          'beta_l', 'beta_h', 'gamma_l', 'gamma_m']
+SAMPLE_RATE = 512
 PLENGTH_MAX = 170
 NO_CONTACT = 200
-EEG_MAX = 24
-RAW_MAX = 2
+PKT_EEG_MAX = 24
+PKT_RAW_MAX = 2
+EEG = {
+    'delta': (1, 4),
+    'theta': (4, 8),
+    'alpha': (8, 18),
+    'beta': (18, 41),
+    'gamma': (41, 51)
+}  # Closed-open interval -> [)
 WINDOW = None
 
 
@@ -102,3 +115,25 @@ def log(ltype, msg, level):
             WINDOW.emit(f"{color}{msg}")
         else:
             print(f"{color}{msg}")
+
+
+def raw_to_microvolt(value):
+    return round(((value * (1.8 / 4096)) / 2000) * 10**6, 3)
+
+
+def microvolts_to_bands(microvolts):
+    data_fft = rfft(microvolts)
+    data_freq = rfftfreq(len(microvolts), d=1/SAMPLE_RATE)
+    bands = []
+    for band in EEG:
+        idx = np.where(np.logical_or(data_freq < EEG[band][0],
+                                     data_freq >= EEG[band][1]))
+        tmp = data_fft.copy()
+        tmp[idx] = 0
+        inv = irfft(tmp)
+        bands.append(list(inv))
+    return bands
+
+
+def signal_axes(signal):
+    return min(signal), max(signal)

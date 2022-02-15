@@ -102,13 +102,9 @@ class MindWaveReader(Thread):
         if 'eeg' in self.callbacks:
             self.callbacks['eeg'](self.data['values']['eeg'])
 
-    def _read_packet(self):
-        """Reads packets and stores in shared data dict"""
-        # Synchronize on SYNC bytes
-        if self._read() != ut.BYTE['sync']:
-            return
-        if self._read() != ut.BYTE['sync']:
-            return
+    def _valid_payload(self):
+        """Checks payload length and checksum"""
+        valid = (False, None, 0)
         plength = self._b2i(self._read())
         if plength >= ut.PLENGTH_MAX:
             ut.log('warn', "Packet length too large. Packet discarded.",
@@ -126,71 +122,83 @@ class MindWaveReader(Thread):
                 ut.log('warn', "Checksum failed. Packet discarded.",
                        self.verbose)
             else:
-                self.data['packets'] += 1
-                idx = 0
-                while idx < plength:
-                    known = True
-                    code = payload[idx]
-                    ut.log('succ', f"Reading packet: {code}", self.verbose)
-                    if code in (ut.BYTE['step1'], ut.BYTE['step2']):
-                        self.step += 1
-                        if self.step == 2:
-                            ut.log('info',
-                                   "MindWave connection established.",
-                                   self.verbose)
-                        return
-                    elif code < ut.BYTE['_max']:
-                        idx += 1
-                        value = payload[idx]
-                        if ut.CODE[code] in ut.NAMES[:5]:
-                            value = self._b2i(value)
-                            self._update(ut.CODE[code], value)
-                            if code == ut.BYTE['signal']:
-                                if value == ut.NO_CONTACT:
-                                    ut.log('warn',
-                                           "MindWave electrodes are not in "
-                                           "contact with your skin.",
-                                           self.verbose)
-                                elif value > ut.NO_CONTACT:
-                                    ut.log('warn',
-                                           "MindWave poor signal detected. "
-                                           "Check electrodes or "
-                                           "interferences.",
-                                           self.verbose)
-                        else:
-                            known = False
-                    else:
-                        idx += 1
-                        vlength = self._b2i(payload[idx])
-                        if code == ut.BYTE['raw']:
-                            if vlength != ut.RAW_MAX:
-                                ut.log('warn',
-                                       f"RAW wrong number of bytes: "
-                                       f"{vlength}. Expected: {ut.RAW_MAX}. "
-                                       f"Packet discarded.",
-                                       self.verbose)
-                            else:
-                                value = self._b2i(
-                                    b''.join(payload[idx+1:idx+1+vlength]), 2)
-                                self._update('raw', value)
-                        elif code == ut.BYTE['eeg']:
-                            if vlength != ut.EEG_MAX:
-                                ut.log('warn',
-                                       f"EEG wrong number of bytes: "
-                                       f"{vlength}. Expected: {ut.EEG_MAX}. "
-                                       f"Packet discarded.",
-                                       self.verbose)
-                            else:
-                                self._read_eeg(payload[idx+1:idx+1+vlength])
-                        else:
-                            known = False
-                        idx += vlength
-                    if not known:
-                        ut.log('warn',
-                               f"Code not recognized: {code}. "
-                               f"Packet discarded.",
+                valid = (True, payload, plength)
+        return valid
+
+    def _read_packet(self):
+        """Reads packets and stores in shared data dict"""
+        # Synchronize on SYNC bytes
+        if self._read() != ut.BYTE['sync']:
+            return
+        if self._read() != ut.BYTE['sync']:
+            return
+        valid, payload, plength = self._valid_payload()
+        if valid:
+            self.data['packets'] += 1
+            idx = 0
+            while idx < plength:
+                known = True
+                code = payload[idx]
+                ut.log('succ', f"Reading packet: {code}", self.verbose)
+                if code in (ut.BYTE['step1'], ut.BYTE['step2']):
+                    self.step += 1
+                    if self.step == 2:
+                        ut.log('info',
+                               "MindWave connection established.",
                                self.verbose)
+                    return
+                elif code < ut.BYTE['_max']:
                     idx += 1
+                    value = payload[idx]
+                    if ut.CODE[code] in ut.NAMES[:5]:
+                        value = self._b2i(value)
+                        self._update(ut.CODE[code], value)
+                        if code == ut.BYTE['signal']:
+                            if value == ut.NO_CONTACT:
+                                ut.log('warn',
+                                       "MindWave electrodes are not in "
+                                       "contact with your skin.",
+                                       self.verbose)
+                            elif value > ut.NO_CONTACT:
+                                ut.log('warn',
+                                       "MindWave poor signal detected. "
+                                       "Check electrodes or "
+                                       "interferences.",
+                                       self.verbose)
+                    else:
+                        known = False
+                else:
+                    idx += 1
+                    vlength = self._b2i(payload[idx])
+                    if code == ut.BYTE['raw']:
+                        if vlength != ut.PKT_RAW_MAX:
+                            ut.log('warn',
+                                   f"RAW wrong number of bytes: "
+                                   f"{vlength}. Expected: {ut.PKT_RAW_MAX}. "
+                                   f"Packet discarded.",
+                                   self.verbose)
+                        else:
+                            value = self._b2i(
+                                b''.join(payload[idx+1:idx+1+vlength]), 2)
+                            self._update('raw', value)
+                    elif code == ut.BYTE['eeg']:
+                        if vlength != ut.PKT_EEG_MAX:
+                            ut.log('warn',
+                                   f"EEG wrong number of bytes: "
+                                   f"{vlength}. Expected: {ut.PKT_EEG_MAX}. "
+                                   f"Packet discarded.",
+                                   self.verbose)
+                        else:
+                            self._read_eeg(payload[idx+1:idx+1+vlength])
+                    else:
+                        known = False
+                    idx += vlength
+                if not known:
+                    ut.log('warn',
+                           f"Code not recognized: {code}. "
+                           f"Packet discarded.",
+                           self.verbose)
+                idx += 1
 
     def _update(self, name, value):
         """Updates shared data value and executes callback if present
@@ -230,8 +238,8 @@ class MindWave:
         }
         self.callbacks = {}
         self.thread = None
+        self.socket = None
         self.flag = Event()
-        self.socket = bluetooth.BluetoothSocket()
         if autostart:
             self.start()
 
@@ -258,17 +266,19 @@ class MindWave:
 
     def connect(self):
         """Establishes connection with MindWave Mobile"""
-        try:
-            ut.log('info',
-                   f"Connecting to MindWave Mobile "
-                   f"({self.address})...",
-                   self.verbose)
-            self.socket.connect((self.address, 1))
-        except bluetooth.btcommon.BluetoothError as e:
-            ut.log('error',
-                   f"Could not connect to MindWave Mobile: "
-                   f"{e.strerror}", self.verbose)
-            sys.exit(1)
+        if self.socket is None:
+            try:
+                ut.log('info',
+                       f"Connecting to MindWave Mobile "
+                       f"({self.address})...",
+                       self.verbose)
+                self.socket = bluetooth.BluetoothSocket()
+                self.socket.connect((self.address, 1))
+            except bluetooth.btcommon.BluetoothError as e:
+                ut.log('error',
+                       f"Could not connect to MindWave Mobile: "
+                       f"{e.strerror}", self.verbose)
+                sys.exit(1)
 
     def start_reader(self):
         """Starts reader thread"""
@@ -295,6 +305,7 @@ class MindWave:
             self.thread.join()
             self.thread = None
             self.socket.close()
+            self.socket = None
 
     def update_callback(self, target, callback):
         """Define callback function for a given target

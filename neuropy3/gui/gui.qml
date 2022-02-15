@@ -32,20 +32,10 @@ ApplicationWindow {
     minimumWidth: 700
     minimumHeight: 520
     visible: true
-    property int iteration: 0
+    Material.theme: cTheme.checked ? Material.Light : Material.Dark
+
     property int sPad: 10
     property int mPad: 20
-    property var idMap: ({
-        0: delta,
-        1: theta,
-        2: lowAlpha,
-        3: highAlpha,
-        4: lowBeta,
-        5: highBeta,
-        6: lowGamma,
-        7: midGamma
-    })
-    property var oldEeg
     function debugObj(obj) {
         for (var p in obj)
             console.log(p + ": " + obj[p])
@@ -55,33 +45,56 @@ ApplicationWindow {
     onEnableStartButton: bStart.enabled = true
     signal newLineConsole(line: string)
     onNewLineConsole: line => tConsole.text = tConsole.text + line + '\n'
-    signal rawUpdate(raw: int)
-    onRawUpdate: raw => {
-        console.log(raw)
-    }
     signal attUpdate(att: int)
     onAttUpdate: att => attention.values = [att]
     signal medUpdate(med: int)
     onMedUpdate: med => meditation.values = [med]
-    signal eegUpdate(eeg: var, max: int)
-    onEegUpdate: (eeg, max) => {
-        var data = JSON.parse(eeg);
-        eeg_polar.color = idMap[max].color;
-        if (iteration === 0) {
-            for (var k in data) {
-                eeg_polar.append(k, data[k]);
-                idMap[k].values = [data[k]]
+    Loader {
+        id: rawLoader
+        objectName: 'rawLoader'
+        source: "raw.qml"
+        property alias item: rawLoader.item
+    }
+    menuBar: MenuBar {
+        id: mainMenuBar
+        font.pixelSize: 11
+        Layout.fillWidth: true
+        Menu {
+            title: qsTr("&Settings")
+            font.pixelSize: 12
+            font.weight: Font.Light
+            MenuItem {
+                id: cRaw
+                objectName: 'cRaw'
+                text: qsTr("Show &raw data")
+                checkable: true
+                onToggled: {
+                    if (checked) {
+                        rawLoader.item.show()
+                    } else {
+                        rawLoader.item.hide()
+                    }
+                }
             }
-            eeg_polar.append(8, data[0])
-        } else {
-            for (var k in data) {
-                eeg_polar.replace(k, oldEeg[k], k, data[k])
-                idMap[k].values = [data[k]]
+            MenuItem {
+                id: cTheme
+                objectName: 'cTheme'
+                text: qsTr("&Light theme")
+                checkable: true
+                onToggled: {
+                    axisAngular.labelsColor = Material.foreground;
+                    eSenseAxis.labelsColor = Material.foreground;
+                    boxESense.legend.color = Material.foreground;
+                    rawLoader.item.rawx.labelsColor = Material.foreground;
+                    rawLoader.item.deltax.labelsColor = Material.foreground;
+                    rawLoader.item.thetax.labelsColor = Material.foreground;
+                    rawLoader.item.alphax.labelsColor = Material.foreground;
+                    rawLoader.item.betax.labelsColor = Material.foreground;
+                    rawLoader.item.gammax.labelsColor = Material.foreground;
+                }
+                Component.onCompleted: checked = Material.theme === Material.Light
             }
-            eeg_polar.replace(8, oldEeg[0], 8, data[0])
         }
-        oldEeg = data
-        iteration++
     }
     RowLayout {
         id: boxLRPadding
@@ -93,154 +106,170 @@ ApplicationWindow {
             Item { implicitHeight: sPad }
             RowLayout {
                 id: boxAllCharts
-                PolarChartView {
-                    id: polarChart
-                    Layout.preferredWidth: mainWindow.width * 0.6 - sPad * 2
+                spacing: 0
+                Rectangle {
+                    Layout.preferredWidth: parent.width * 0.6
                     Layout.fillHeight: true
-                    legend.visible: false
-                    antialiasing: true
-                    animationOptions: ChartView.SeriesAnimations
-                    backgroundColor: Material.dialogColor
-                    CategoryAxis {
-                        id: axisAngular
-                        min: 0
-                        max: 8
-                        labelsPosition: CategoryAxis.AxisLabelsPositionOnValue
-                        labelsColor: Material.foreground
-                        gridVisible: false
-                        Component.onCompleted: {
-                            append('DELTA', 0);
-                            append('THETA', 1);
-                            append('LALPHA', 2);
-                            append('HALPHA', 3);
-                            append('LBETA', 4);
-                            append('HBETA', 5);
-                            append('LGAMMA', 6);
-                            append('MGAMMA', 7)
+                    color: Material.dialogColor
+                    clip: true
+                    PolarChartView {
+                        id: polarChart
+                        anchors.fill: parent
+                        legend.visible: false
+                        antialiasing: true
+                        animationOptions: ChartView.SeriesAnimations
+                        backgroundColor: Material.dialogColor
+                        backgroundRoundness: 0
+                        margins {
+                            left: 0
+                            top: 0
+                            right: 0
+                            bottom: 0
                         }
-                    }
-                    ValueAxis {
-                        id: axisRadial
-                        min: 0
-                        max: 17
-                        labelFormat: " "
-                        gridVisible: false
-                        lineVisible: false
-                    }
-                    SplineSeries {
-                        id: eeg_polar
-                        axisAngular: axisAngular
-                        axisRadial: axisRadial
-                    }
-                    Component.onCompleted: {
-                        margins.left = 0;
-                        margins.right = 0;
-                        margins.top = 0;
-                        margins.bottom = 0
+                        CategoryAxis {
+                            id: axisAngular
+                            min: 0
+                            max: 8
+                            labelsPosition: CategoryAxis.AxisLabelsPositionOnValue
+                            gridVisible: false
+                            labelsColor: Material.foreground
+                        }
+                        ValueAxis {
+                            id: axisRadial
+                            min: 0
+                            max: 17
+                            labelFormat: " "
+                            gridVisible: false
+                            lineVisible: false
+                        }
+                        SplineSeries {
+                            id: eegPolar
+                            axisAngular: axisAngular
+                            axisRadial: axisRadial
+                        }
+                        Component.onCompleted: backend.newPolar(eegPolar, axisAngular)
                     }
                 }
                 ColumnLayout {
                     id: boxCharts
                     spacing: 0
-                    ChartView {
-                        id: boxEEG
-                        title: "EEG Bands"
+                    Rectangle {
                         Layout.preferredHeight: boxAllCharts.height * 0.5
                         Layout.fillWidth: true
-                        legend.visible: false
-                        antialiasing: true
-                        animationOptions: ChartView.SeriesAnimations
-                        backgroundColor: Material.dialogColor
-                        titleColor: Material.foreground
-                        BarSeries {
-                            id: eeg_bar
-                            barWidth: 1
-                            axisX: BarCategoryAxis {
-                                visible: false
+                        color: Material.dialogColor
+                        clip: true
+                        ChartView {
+                            id: boxEEG
+                            title: "EEG Bands"
+                            anchors.fill: parent
+                            legend.visible: false
+                            antialiasing: true
+                            animationOptions: ChartView.SeriesAnimations
+                            backgroundColor: Material.dialogColor
+                            backgroundRoundness: 0
+                            titleColor: Material.foreground
+                            margins {
+                                left: 10
+                                top: 0
+                                right: 10
+                                bottom: 10
                             }
-                            axisY: ValueAxis {
-                                min: 0
-                                max: 17
-                                visible: false
+                            BarSeries {
+                                id: eegBar
+                                barWidth: 1
+                                axisX: BarCategoryAxis {
+                                    visible: false
+                                }
+                                axisY: ValueAxis {
+                                    min: 0
+                                    max: 17
+                                    visible: false
+                                }
+                                BarSet {
+                                    id: delta
+                                    values: [0]
+                                }
+                                BarSet {
+                                    id: theta
+                                    values: [0]
+                                }
+                                BarSet {
+                                    id: alphaLow
+                                    values: [0]
+                                }
+                                BarSet {
+                                    id: alphaHigh
+                                    values: [0]
+                                }
+                                BarSet {
+                                    id: betaLow
+                                    values: [0]
+                                }
+                                BarSet {
+                                    id: betaHigh
+                                    values: [0]
+                                }
+                                BarSet {
+                                    id: gammaLow
+                                    values: [0]
+                                }
+                                BarSet {
+                                    id: gammaMid
+                                    values: [0]
+                                }
                             }
-                            BarSet {
-                                id: delta
-                                values: [0]
-                            }
-                            BarSet {
-                                id: theta
-                                values: [0]
-                            }
-                            BarSet {
-                                id: lowAlpha
-                                values: [0]
-                            }
-                            BarSet {
-                                id: highAlpha
-                                values: [0]
-                            }
-                            BarSet {
-                                id: lowBeta
-                                values: [0]
-                            }
-                            BarSet {
-                                id: highBeta
-                                values: [0]
-                            }
-                            BarSet {
-                                id: lowGamma
-                                values: [0]
-                            }
-                            BarSet {
-                                id: midGamma
-                                values: [0]
-                            }
-                        }
-                        Component.onCompleted: {
-                            margins.left = 10;
-                            margins.right = 10;
-                            margins.top = 0;
-                            margins.bottom = 10
+                            Component.onCompleted: backend.newBars(delta, theta,
+                                                                   alphaLow, alphaHigh,
+                                                                   betaLow, betaHigh,
+                                                                   gammaLow, gammaMid)
                         }
                     }
-                    ChartView {
-                        id: boxESense
-                        title: "eSense"
-                        Layout.fillWidth: true
+                    Rectangle {
                         Layout.preferredHeight: boxAllCharts.height * 0.5
-                        legend.alignment: Qt.AlignBottom
-                        legend.font.pixelSize: 15
-                        legend.labelColor: Material.foreground
-                        backgroundColor: Material.dialogColor
-                        titleColor: Material.foreground
-                        BarSeries {
-                            id: esense
-                            barWidth: 1
-                            axisX: BarCategoryAxis {
-                                visible: false
+                        Layout.fillWidth: true
+                        color: Material.dialogColor
+                        clip: true
+                        ChartView {
+                            id: boxESense
+                            title: "eSense"
+                            anchors.fill: parent
+                            legend.alignment: Qt.AlignBottom
+                            legend.labelColor: Material.foreground
+                            legend.font.pixelSize: 15
+                            backgroundColor: Material.dialogColor
+                            backgroundRoundness: 0
+                            titleColor: Material.foreground
+                            margins {
+                                left: 6
+                                top: 0
+                                right: 10
+                                bottom: 0
                             }
-                            axisY: ValueAxis {
-                                min: 0
-                                max: 100
-                                tickCount: 3
-                                labelsColor: Material.foreground
+                            BarSeries {
+                                id: esense
+                                barWidth: 1
+                                axisX: BarCategoryAxis {
+                                    visible: false
+                                }
+                                axisY: ValueAxis {
+                                    id: eSenseAxis
+                                    min: 0
+                                    max: 100
+                                    tickCount: 3
+                                    labelsColor: Material.foreground
+                                    gridVisible: false
+                                }
+                                BarSet {
+                                    id: attention
+                                    label: "Attention"
+                                    values: [0]
+                                }
+                                BarSet {
+                                    id: meditation
+                                    label: "Meditation"
+                                    values: [0]
+                                }
                             }
-                            BarSet {
-                                id: attention
-                                label: "Attention"
-                                values: [0]
-                            }
-                            BarSet {
-                                id: meditation
-                                label: "Meditation"
-                                values: [0]
-                            }
-                        }
-                        Component.onCompleted: {
-                            margins.left = 6;
-                            margins.right = 10;
-                            margins.top = 0;
-                            margins.bottom = 0;
                         }
                     }
                 }

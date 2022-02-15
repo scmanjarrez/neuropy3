@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -30,25 +30,83 @@ import argparse
 
 
 if __name__ == '__main__':
+    files = {
+        'raw': None,
+        'att': None,
+        'med': None,
+        'eeg': None
+    }
+
+    def log_raw(data):
+        # Approx. one packet every 2ms
+        files['raw'].write(f'{data}\n')
+        files['raw'].flush()
+
+    def log_att(data):
+        # Approx. one packet every 1s
+        files['att'].write(f'{data}\n')
+        files['att'].flush()
+
+    def log_med(data):
+        # Approx. one packet every 1s
+        files['med'].write(f'{data}\n')
+        files['med'].flush()
+
+    def log_eeg(data):
+        # Approx. one packet every 1s
+        files['eeg'].write(f'{",".join(map(str, data.values()))}\n')
+        files['eeg'].flush()
+
     parser = argparse.ArgumentParser(
         prog='python -m neuropy3',
         description=("NeuroSky MindWave Mobile 2 reader."))
-    parser.add_argument('--verbose',
+    parser.add_argument('-v', '--verbose',
                         choices=range(5), default=2, type=int,
                         help="Maximum verbose level.")
-    parser.add_argument('--gui',
+    parser.add_argument('-r', '--raw', metavar='RAW_FILE',
+                        nargs='?',  const='raw.csv',
+                        help="Stores raw data in RAW_FILE. Default: raw.csv")
+    parser.add_argument('-a', '--att', metavar='ATT_FILE',
+                        nargs='?',  const='att.csv',
+                        help=("Stores attention data in ATT_FILE. "
+                              "Default: raw.csv)"))
+    parser.add_argument('-m', '--med', metavar='MED_FILE',
+                        nargs='?',  const='med.csv',
+                        help=("Stores meditation data in MED_FILE. "
+                              "Default: raw.csv)"))
+    parser.add_argument('-e', '--eeg', metavar='EEG_FILE',
+                        nargs='?',  const='eeg.csv',
+                        help="Stores eeg data in EEG_FILE. Default: eeg.csv")
+    parser.add_argument('-g', '--gui',
                         action='store_true',
                         help="Graphical interface to represent headset data.")
-    parser.add_argument('-a', '--address',
+    parser.add_argument('-d', '--address',
                         metavar='bd_address',
                         help="MindWave Mobile bluetooth device address (MAC).")
     args = parser.parse_args()
+
     if not args.gui:
-        mw = MindWave(args.address, verbose=args.verbose)
+        mw = MindWave(args.address, autostart=False, verbose=args.verbose)
+        if args.raw is not None:
+            files['raw'] = open(args.raw, 'w')
+            mw.update_callback('raw', log_raw)
+        if args.att is not None:
+            files['att'] = open(args.att, 'w')
+            mw.update_callback('attention', log_att)
+        if args.med is not None:
+            files['med'] = open(args.med, 'w')
+            mw.update_callback('meditation', log_med)
+        if args.eeg is not None:
+            files['eeg'] = open(args.eeg, 'w')
+            mw.update_callback('eeg', log_eeg)
+        mw.start()
         if mw.thread is not None:
             try:
                 mw.thread.join()
             except KeyboardInterrupt:
                 mw.stop()
+                for file in files.values():
+                    if file is not None:
+                        file.close()
     else:
         gui.main(args.address)

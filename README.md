@@ -9,6 +9,7 @@ bluetooth.
     - [Command line interface](#command-line-interface)
     - [Graphical user interface](#graphical-user-interface)
     - [Importing library](#importing-library)
+  - [Acknowledgements](#acknowledgements)
   - [License](#license)
 
 # Requirements
@@ -24,13 +25,12 @@ or install manually via pip
 $ python -m pip install -r requirements.txt
 ```
 
-
 # Execution
 ## Command line interface
 ```bash
 $ python -m neuropy3
 $ python -m neuropy3 --address XX:YY:ZZ:AA:BB:CC
-$ python -m neuropy3 --address XX:YY:ZZ:AA:BB:CC --verbose 3
+$ python -m neuropy3 --help
 ```
 > Address argument helps speed up connection process, otherwise a neuropy3
 > will run a scan of nearby bluetooth devices (which takes a lot).
@@ -40,6 +40,15 @@ $ python -m neuropy3 --address XX:YY:ZZ:AA:BB:CC --verbose 3
 $ python -m neuropy3 --gui
 $ python -m neuropy3 --address XX:YY:ZZ:AA:BB:CC --gui
 ```
+<details>
+    <summary>Screenshots</summary>
+    <div align="center">
+        <img alt="gui" src="images/gui.png" width="75%"/>
+    </div>
+    <div align="center">
+        <img alt="raw" src="images/raw.png" width="75%"/>
+    </div>
+</details>
 
 ## Importing library
 ```python
@@ -51,10 +60,12 @@ $ python -m neuropy3 --address XX:YY:ZZ:AA:BB:CC --gui
 >> mw.update_callback('attention, lambda x: print(x))
 ```
 
-# Acknowledgement
+# Acknowledgements
+**This work has been supported by National R&D Project TEC2017-84197-C4-1-R and by the
+Comunidad de Madrid project CYNAMON P2018/TCS-4566 and co-financed by European Structural
+Funds (ESF and FEDER)**
 
 - Based on [lihas/NeuroPy](https://github.com/lihas/NeuroPy) library.
-
 - Communication protocol from [neurosky](http://developer.neurosky.com/docs/doku.php?id=thinkgear_communications_protocol).
 
 # License
