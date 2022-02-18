@@ -1,4 +1,7 @@
 ## Own ignore
+DebugRectangle.qml
+csv/
+*whl
 
 ## Default python ignore
 # Byte-compiled / optimized / DLL files

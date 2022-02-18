@@ -28,18 +28,20 @@ import QtCharts 6.2
 
 ApplicationWindow {
     id: rawWindow
-    title: "neuropy3 - raw data"
+    title: "neuropy3 - raw"
     minimumWidth: 700
     minimumHeight: 920
     Material.theme: cTheme.checked ? Material.Light : Material.Dark
 
     property real bandSize: 0.166
-    property alias rawx: rawAxis
-    property alias deltax: deltaAxis
-    property alias thetax: thetaAxis
-    property alias alphax: alphaAxis
-    property alias betax: betaAxis
-    property alias gammax: gammaAxis
+    property var axisMap: ({
+        'rawx': rawXAxis, 'rawy': rawYAxis,
+        'deltax': deltaXAxis, 'deltay': deltaYAxis,
+        'thetax': thetaXAxis, 'thetay': thetaYAxis,
+        'alphax': alphaXAxis, 'alphay': alphaYAxis,
+        'betax': betaXAxis, 'betay': betaYAxis,
+        'gammax': gammaXAxis, 'gammay': gammaYAxis
+    })
     RowLayout {
         id: boxWLRPadding
         anchors.fill: parent
@@ -57,7 +59,6 @@ ApplicationWindow {
                 clip: true
                 ChartView {
                     id: rawSignal
-                    objectName: "testest"
                     title: "Raw Signal"
                     anchors.fill: parent
                     legend.visible: false
@@ -75,19 +76,21 @@ ApplicationWindow {
                     LineSeries {
                         id: rawLine
                         axisX: ValueAxis {
+                            id: rawXAxis
                             min: 0
                             max: 1
                             gridVisible: false
+                            labelsColor: Material.foreground
                         }
                         axisY: ValueAxis {
-                            id: rawAxis
-                            min: -2
-                            max: 2
+                            id: rawYAxis
+                            min: -200
+                            max: 200
                             gridVisible: false
                             labelsColor: Material.foreground
                         }
                     }
-                    Component.onCompleted: backend.newChart('raw', rawLine, rawAxis)
+                    Component.onCompleted: backend.newChart('raw', rawLine, rawYAxis)
                 }
             }
             Rectangle {
@@ -100,7 +103,8 @@ ApplicationWindow {
                     title: "Delta Signal"
                     anchors.fill: parent
                     legend.visible: false
-                    legend.font.pixelSize: 15
+                    antialiasing: true
+                    animationOptions: ChartView.SeriesAnimations
                     backgroundColor: Material.dialogColor
                     backgroundRoundness: 0
                     titleColor: Material.foreground
@@ -114,18 +118,21 @@ ApplicationWindow {
                         id: deltaLine
                         objectName: 'deltaLine'
                         axisX: ValueAxis {
-                            id: deltaAAxis
+                            id: deltaXAxis
                             min: 0
                             max: 1
                             gridVisible: false
+                            labelsColor: Material.foreground
                         }
                         axisY: ValueAxis {
-                            id: deltaAxis
+                            id: deltaYAxis
+                            min: -200
+                            max: 200
                             gridVisible: false
                             labelsColor: Material.foreground
                         }
                     }
-                    Component.onCompleted: backend.newChart('delta', deltaLine, deltaAxis)
+                    Component.onCompleted: backend.newChart('delta', deltaLine, deltaYAxis)
                 }
             }
             Rectangle {
@@ -138,7 +145,8 @@ ApplicationWindow {
                     title: "Theta Signal"
                     anchors.fill: parent
                     legend.visible: false
-                    legend.font.pixelSize: 15
+                    antialiasing: true
+                    animationOptions: ChartView.SeriesAnimations
                     backgroundColor: Material.dialogColor
                     backgroundRoundness: 0
                     titleColor: Material.foreground
@@ -151,17 +159,21 @@ ApplicationWindow {
                     LineSeries {
                         id: thetaLine
                         axisX: ValueAxis {
+                            id: thetaXAxis
                             min: 0
                             max: 1
                             gridVisible: false
+                            labelsColor: Material.foreground
                         }
                         axisY: ValueAxis {
-                            id: thetaAxis
+                            id: thetaYAxis
+                            min: -200
+                            max: 200
                             gridVisible: false
                             labelsColor: Material.foreground
                         }
                     }
-                    Component.onCompleted: backend.newChart('theta', thetaLine, thetaAxis)
+                    Component.onCompleted: backend.newChart('theta', thetaLine, thetaYAxis)
                 }
             }
             Rectangle {
@@ -174,7 +186,8 @@ ApplicationWindow {
                     title: "Alpha Signal"
                     anchors.fill: parent
                     legend.visible: false
-                    legend.font.pixelSize: 15
+                    antialiasing: true
+                    animationOptions: ChartView.SeriesAnimations
                     backgroundColor: Material.dialogColor
                     backgroundRoundness: 0
                     titleColor: Material.foreground
@@ -187,17 +200,21 @@ ApplicationWindow {
                     LineSeries {
                         id: alphaLine
                         axisX: ValueAxis {
+                            id: alphaXAxis
                             min: 0
                             max: 1
                             gridVisible: false
+                            labelsColor: Material.foreground
                         }
                         axisY: ValueAxis {
-                            id: alphaAxis
+                            id: alphaYAxis
+                            min: -200
+                            max: 200
                             gridVisible: false
                             labelsColor: Material.foreground
                         }
                     }
-                    Component.onCompleted: backend.newChart('alpha', alphaLine, alphaAxis)
+                    Component.onCompleted: backend.newChart('alpha', alphaLine, alphaYAxis)
                 }
             }
             Rectangle {
@@ -210,7 +227,8 @@ ApplicationWindow {
                     title: "Beta Signal"
                     anchors.fill: parent
                     legend.visible: false
-                    legend.font.pixelSize: 15
+                    antialiasing: true
+                    animationOptions: ChartView.SeriesAnimations
                     backgroundColor: Material.dialogColor
                     backgroundRoundness: 0
                     titleColor: Material.foreground
@@ -223,17 +241,21 @@ ApplicationWindow {
                     LineSeries {
                         id: betaLine
                         axisX: ValueAxis {
+                            id: betaXAxis
                             min: 0
                             max: 1
                             gridVisible: false
+                            labelsColor: Material.foreground
                         }
                         axisY: ValueAxis {
-                            id: betaAxis
+                            id: betaYAxis
+                            min: -200
+                            max: 200
                             gridVisible: false
                             labelsColor: Material.foreground
                         }
                     }
-                    Component.onCompleted: backend.newChart('beta', betaLine, betaAxis)
+                    Component.onCompleted: backend.newChart('beta', betaLine, betaYAxis)
                 }
             }
             Rectangle {
@@ -246,7 +268,8 @@ ApplicationWindow {
                     title: "Gamma Signal"
                     anchors.fill: parent
                     legend.visible: false
-                    legend.font.pixelSize: 15
+                    antialiasing: true
+                    animationOptions: ChartView.SeriesAnimations
                     backgroundColor: Material.dialogColor
                     backgroundRoundness: 0
                     titleColor: Material.foreground
@@ -259,17 +282,21 @@ ApplicationWindow {
                     LineSeries {
                         id: gammaLine
                         axisX: ValueAxis {
+                            id: gammaXAxis
                             min: 0
                             max: 1
                             gridVisible: false
+                            labelsColor: Material.foreground
                         }
                         axisY: ValueAxis {
-                            id: gammaAxis
+                            id: gammaYAxis
+                            min: -200
+                            max: 200
                             gridVisible: false
                             labelsColor: Material.foreground
                         }
                     }
-                    Component.onCompleted: backend.newChart('gamma', gammaLine, gammaAxis)
+                    Component.onCompleted: backend.newChart('gamma', gammaLine, gammaYAxis)
                 }
             }
             Item { implicitHeight: sPad }

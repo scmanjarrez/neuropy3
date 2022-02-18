@@ -85,12 +85,8 @@ ApplicationWindow {
                     axisAngular.labelsColor = Material.foreground;
                     eSenseAxis.labelsColor = Material.foreground;
                     boxESense.legend.color = Material.foreground;
-                    rawLoader.item.rawx.labelsColor = Material.foreground;
-                    rawLoader.item.deltax.labelsColor = Material.foreground;
-                    rawLoader.item.thetax.labelsColor = Material.foreground;
-                    rawLoader.item.alphax.labelsColor = Material.foreground;
-                    rawLoader.item.betax.labelsColor = Material.foreground;
-                    rawLoader.item.gammax.labelsColor = Material.foreground;
+                    for (var axis in rawLoader.item.axisMap)
+                        rawLoader.item.axisMap[axis].labelsColor = Material.foreground
                 }
                 Component.onCompleted: checked = Material.theme === Material.Light
             }

@@ -70,7 +70,6 @@ class BackendThread(Thread):
         try:
             data = {band: math.log(value) for band, value in eeg.items()}
             self.backend.update_asic(data)
-            # self.root.eegUpdate.emit(json.dumps(log), max(log, key=log.get))
         except ValueError:
             pass
 
@@ -80,9 +79,6 @@ class BackendThread(Thread):
             microvolts = [ut.raw_to_microvolt(self.queue.get())
                           for d in range(ut.SAMPLE_RATE)]
             self.backend.update_raw(microvolts)
-            # vmin, vmax = min(microvolts), max(microvolts)
-            # print(vmin, vmax)
-        # self.root.rawUpdate.emit(raw)
 
     def send_attention(self, att):
         self.root.attUpdate.emit(att)
