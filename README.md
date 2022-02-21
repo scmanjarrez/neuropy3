@@ -57,7 +57,7 @@ $ python -m neuropy3 --address XX:YY:ZZ:AA:BB:CC --gui
 # mw = MindWave(address='XX:YY:ZZ:AA:BB:CC', verbose=3)
 >> mw.update_callback('eeg', lambda x: print(x))
 >> mw.update_callback('meditation', lambda x: print(x))
->> mw.update_callback('attention, lambda x: print(x))
+>> mw.update_callback('attention', lambda x: print(x))
 ```
 
 # Acknowledgements
