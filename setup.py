@@ -53,12 +53,13 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8'
     ],
-    packages=['neuropy3'],
+    packages=['neuropy3', 'neuropy3.gui'],
     python_requires='>= 3.6',
     install_requires=[
         'PySide6==6.2.3',
         'shiboken6==6.2.3',
-        'pybluez @ https://github.com/pybluez/pybluez/archive/master.tar.gz'
+        'pybluez @ https://github.com/pybluez/pybluez/archive/master.tar.gz',
+        'scipy>=1.8.0'
     ],
     entry_points={
         'console_scripts': [
