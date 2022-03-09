@@ -53,11 +53,12 @@ $ python -m neuropy3 --address XX:YY:ZZ:AA:BB:CC --gui
 ## Importing library
 ```python
 >>> from neuropy3.neuropy3 import MindWave
->>> mw = MindWave()
-# mw = MindWave(address='XX:YY:ZZ:AA:BB:CC', verbose=3)
->> mw.update_callback('eeg', lambda x: print(x))
->> mw.update_callback('meditation', lambda x: print(x))
->> mw.update_callback('attention', lambda x: print(x))
+>>> mw = MindWave(address='XX:YY:ZZ:AA:BB:CC', autostart=False, verbose=3)
+>>> # mw = MindWave(autostart=False, verbose=3)  # Autoscan for MindWave Mobile
+>>> mw.update_callback('eeg', lambda x: print(x))
+>>> mw.update_callback('meditation', lambda x: print(x))
+>>> mw.update_callback('attention', lambda x: print(x))
+>>> mw.start()
 ```
 
 # Acknowledgements
