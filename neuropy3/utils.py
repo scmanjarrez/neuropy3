@@ -63,9 +63,9 @@ PKT_RAW_MAX = 2
 EEG = {
     'delta': (1, 4),
     'theta': (4, 8),
-    'alpha': (8, 18),
-    'beta': (18, 41),
-    'gamma': (41, 51)
+    'alpha': (8, 13),
+    'beta': (13, 31),
+    'gamma': (31, 51)
 }  # Closed-open interval -> [)
 WINDOW = None
 
