@@ -118,13 +118,15 @@ def log(ltype, msg, level):
 
 
 def raw_to_microvolt(value):
-    return round(((value * (1.8 / 4096)) / 2000) * 10**6, 3)
+    return round(((value * (1.8 / 4096)) / 2000) * 1e6, 3)
 
 
 def microvolts_to_bands(microvolts):
     data_fft = rfft(microvolts)
     data_freq = rfftfreq(len(microvolts), d=1/SAMPLE_RATE)
     bands = []
+    # Set irrelevant frequencies to 0, i.e. only frequencies in range
+    # have values
     for band in EEG:
         idx = np.where(np.logical_or(data_freq < EEG[band][0],
                                      data_freq >= EEG[band][1]))
