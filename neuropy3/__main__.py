@@ -29,7 +29,7 @@ from neuropy3.gui import gui
 import argparse
 
 
-if __name__ == '__main__':
+def main():
     files = {
         'raw': None,
         'att': None,
@@ -110,3 +110,7 @@ if __name__ == '__main__':
                         file.close()
     else:
         gui.main(args.address)
+
+
+if __name__ == '__main__':
+    main()

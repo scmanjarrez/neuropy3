@@ -59,11 +59,12 @@ setup(
         'PySide6==6.2.3',
         'shiboken6==6.2.3',
         'pybluez @ https://github.com/pybluez/pybluez/archive/master.tar.gz',
-        'scipy>=1.8.0'
+        'numpy==1.23.3',
+        'scipy==1.9.1'
     ],
     entry_points={
         'console_scripts': [
-            'neuropy=neuropy.__main__:main'
+            'neuropy=neuropy3.__main__:main'
         ]
     }
 )
