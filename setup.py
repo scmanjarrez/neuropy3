@@ -48,17 +48,17 @@ setup(
     license='GPLv3+',
     license_files=['LICENSE'],
     classifiers=[
-        ('License :: OI Approved :: '
+        ('License :: OSI Approved :: '
          'GNU General Public License v3 or later (GPLv3+)'),
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8'
     ],
     packages=['neuropy3', 'neuropy3.gui'],
-    python_requires='>= 3.6',
+    python_requires='>= 3.8',
     install_requires=[
         'PySide6==6.2.3',
         'shiboken6==6.2.3',
-        'pybluez @ https://github.com/pybluez/pybluez/archive/master.tar.gz',
+        'pybluez2==0.46',
         'numpy==1.23.3',
         'scipy==1.9.1'
     ],
