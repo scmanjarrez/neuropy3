@@ -20,7 +20,7 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from setuptools import setup
 from pathlib import Path
@@ -31,7 +31,7 @@ readme = (_parent / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name='neuropy3',
-    version='1.0.0',
+    version='1.0.1',
     description=('Python3 library to read data from '
                  'Neurosky Mindwave Mobile 2 in linux.'),
     author='Sergio Chica',
