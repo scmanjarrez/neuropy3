@@ -61,34 +61,34 @@ class MindWaveReader(Thread):
         while not self.flag.is_set():
             self._read_packet()
 
-    def _read(self, bytes=1):
+    def _read(self, n_bytes=1):
         """Reads bytes from bluetooth socket
-        :param bytes: Number of bytes to read
-        :type bytes: int, optional. Default: 1
+        :param n_bytes: Number of bytes to read
+        :type n_bytes: int, optional. Default: 1
         :return: A bytearray read from bluetooth socket
         :rtype: bytearray"""
         self.socket.settimeout(5)
         try:
-            return self.socket.recv(bytes)
+            return self.socket.recv(n_bytes)
         except bluetooth.btcommon.BluetoothError:
             ut.log('error', "Bluetooth timed out. Check headset is on.",
                    self.verbose)
             sys.exit(1)
 
-    def _b2i(self, value, bytes=1):
+    def _b2i(self, value, n_bytes=1):
         """Converts bytes to integer
         Depending of the size of the bytes, integer can be signed
         or unsigned. More info in thinkgear communications protocol
         :param value: Value to be converted
         :type value: bytearray
-        :param bytes: Number of bytes to be converted
-        :type bytes: int, optional. Allowed: 1, 2, 4. Default: 1
+        :param n_bytes: Number of bytes to be converted
+        :type n_bytes: int, optional. Allowed: 1, 2, 4. Default: 1
         :return: Value after converting bytearray
         :rtype: int"""
         vtype = '>B'
-        if bytes == 2:
+        if n_bytes == 2:
             vtype = '>h'
-        elif bytes == 4:
+        elif n_bytes == 4:
             vtype = '>I'
         return struct.unpack(vtype, value)[0]
 
@@ -159,7 +159,7 @@ class MindWaveReader(Thread):
                                        "MindWave electrodes are not in "
                                        "contact with your skin.",
                                        self.verbose)
-                            elif value > ut.NO_CONTACT:
+                            elif value:
                                 ut.log('warn',
                                        "MindWave poor signal detected. "
                                        "Check electrodes or "

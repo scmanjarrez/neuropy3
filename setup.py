@@ -31,7 +31,7 @@ readme = (_parent / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name='neuropy3',
-    version='1.0.2',
+    version='1.0.3',
     description=('Python3 library to read data from '
                  'Neurosky Mindwave Mobile 2 in linux.'),
     author='Sergio Chica',
