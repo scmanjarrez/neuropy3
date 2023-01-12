@@ -16,11 +16,17 @@ bluetooth.
 - libbluetooth-dev
 
 # Pre-execution
-You can install dependencies using setup.py
+You can install dependencies via setup.py
 ```bash
 $ python -m pip install .
+$ python -m pip install .[gui] # to install gui dependencies
 ```
-or install manually via pip
+via python package index (PyPI)
+```bash
+$ python -m pip install neuropy3
+$ python -m pip install neuropy3[gui] # to install gui dependencies
+```
+or manually
 ```bash
 $ python -m pip install -r requirements.txt
 ```
@@ -40,6 +46,7 @@ $ python -m neuropy3 --help
 $ python -m neuropy3 --gui
 $ python -m neuropy3 --address XX:YY:ZZ:AA:BB:CC --gui
 ```
+> Note: requires neuropy3[gui] extra dependencies
 <details>
     <summary>Screenshots</summary>
     <div align="center">
@@ -70,7 +77,7 @@ Funds (ESF and FEDER)**
 - Communication protocol from [neurosky](http://developer.neurosky.com/docs/doku.php?id=thinkgear_communications_protocol).
 
 # License
-    neuropy3  Copyright (C) 2022 Sergio Chica Manjarrez @ pervasive.it.uc3m.es.
+    neuropy3  Copyright (C) 2022-2023 Sergio Chica Manjarrez @ pervasive.it.uc3m.es.
     Universidad Carlos III de Madrid.
     This program comes with ABSOLUTELY NO WARRANTY; for details check below.
     This is free software, and you are welcome to redistribute it

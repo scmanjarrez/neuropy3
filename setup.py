@@ -4,7 +4,7 @@
 
 # setup - package setup.
 
-# Copyright (C) 2022 Sergio Chica Manjarrez @ pervasive.it.uc3m.es.
+# Copyright (C) 2022-2023 Sergio Chica Manjarrez @ pervasive.it.uc3m.es.
 # Universidad Carlos III de Madrid.
 
 # This file is part of neuropy3.
@@ -31,7 +31,7 @@ readme = (_parent / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name='neuropy3',
-    version='1.0.1',
+    version='1.0.2',
     description=('Python3 library to read data from '
                  'Neurosky Mindwave Mobile 2 in linux.'),
     author='Sergio Chica',
@@ -56,12 +56,13 @@ setup(
     packages=['neuropy3', 'neuropy3.gui'],
     python_requires='>= 3.8',
     install_requires=[
-        'PySide6==6.2.3',
-        'shiboken6==6.2.3',
         'pybluez2==0.46',
         'numpy==1.23.3',
         'scipy==1.9.1'
     ],
+    extras_require={
+        'gui': ['PySide6==6.2.3', 'shiboken6==6.2.3']
+    },
     entry_points={
         'console_scripts': [
             'neuropy=neuropy3.__main__:main'

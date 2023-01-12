@@ -1,0 +1,29 @@
+variables:
+  REGISTRY_HOST: registry.gast.it.uc3m.es
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+
+stages:
+  - commit
+
+update-year:
+  stage: commit
+  image: docker:stable
+  script:
+    - apk add git perl
+    - git remote remove origin
+    - git remote add origin https://oauth2:${CI_UPDATER_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}.git
+    - git remote set-url origin --push https://oauth2:${CI_UPDATER_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}.git
+    - git remote set-url origin --add --push https://updater:${CIGH_UPDATER_TOKEN}@github.com/scmanjarrez/${CI_PROJECT_NAME}.git
+    - git fetch
+    - git reset --hard origin/master
+    - git config user.name "gitlab-ci"
+    - git config user.email "gitlab-ci@gitlab.gast.it.uc3m.es"
+    - export year=$(date +"%Y")
+    - perl -i -pe 's/(?<=\([cC]\)\s)(?<from>\d+)(-\d+)?/$+{from}-$ENV{"year"}/' README.md neuropy3/*py setup.py neuropy3/gui/*py neuropy3/gui/*qml
+    - git add --update
+    - git commit -m "Updated year"
+    - git push origin HEAD:$CI_COMMIT_REF_NAME
