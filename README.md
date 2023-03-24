@@ -1,6 +1,6 @@
 # Description
-Python3 library to read data from Neurosky Mindwave Mobile 2 in linux using
-bluetooth.
+Python3 library to read data from Neurosky Mindwave Mobile 2 on linux using
+pybluez2.
 
 **Contents:**
   - [Requirements](#requirements)
@@ -29,6 +29,7 @@ $ python -m pip install neuropy3[gui] # to install gui dependencies
 or manually
 ```bash
 $ python -m pip install -r requirements.txt
+$ python -m pip install -r gui_requirements.txt # to install gui dependencies
 ```
 
 # Execution
@@ -62,10 +63,12 @@ $ python -m neuropy3 --address XX:YY:ZZ:AA:BB:CC --gui
 >>> from neuropy3.neuropy3 import MindWave
 >>> mw = MindWave(address='XX:YY:ZZ:AA:BB:CC', autostart=False, verbose=3)
 >>> # mw = MindWave(autostart=False, verbose=3)  # Autoscan for MindWave Mobile
->>> mw.update_callback('eeg', lambda x: print(x))
->>> mw.update_callback('meditation', lambda x: print(x))
->>> mw.update_callback('attention', lambda x: print(x))
+>>> mw.set_callback('eeg', lambda x: print(x))
+>>> mw.set_callback('meditation', lambda x: print(x))
+>>> mw.set_callback('attention', lambda x: print(x))
 >>> mw.start()
+>>> mw.unset_callback('eeg')
+>>> mw.stop()
 ```
 
 # Acknowledgements

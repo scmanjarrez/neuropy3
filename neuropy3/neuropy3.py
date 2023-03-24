@@ -307,7 +307,7 @@ class MindWave:
             self.socket.close()
             self.socket = None
 
-    def update_callback(self, target, callback):
+    def set_callback(self, target, callback):
         """Define callback function for a given target
         Executes a function when a value is updated
 
@@ -317,6 +317,14 @@ class MindWave:
                          where data is an `int` containing the updated value.
         :type callback: function"""
         self.callbacks[target] = callback
+
+    def unset_callback(self, target):
+        """Remove callback for a given target
+
+        :param target: The value to be untracked
+        :type target: str"""
+        if target in self.callbacks:
+            del self.callbacks[target]
 
     def received(self):
         """Total packets received (and valid)"""
