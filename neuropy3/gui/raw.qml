@@ -2,7 +2,7 @@
 
 /* raw - Graphical User Interface (Raw data) QML. */
 
-/* Copyright (C) 2022-2023 Sergio Chica Manjarrez @ pervasive.it.uc3m.es. */
+/* Copyright (C) 2022-2024 Sergio Chica Manjarrez @ pervasive.it.uc3m.es. */
 /* Universidad Carlos III de Madrid. */
 
 /* This file is part of neuropy3. */
